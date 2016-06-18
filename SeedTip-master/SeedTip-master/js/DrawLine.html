@@ -1,0 +1,160 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<script>
+			var geocoder;
+			var map;
+			var location1;
+			var location2;
+
+			$(document).ready(function(){
+				initialize();    
+				$("#startvalue").on('keydown',function(event){
+					if (event.keyCode == 13 ) {
+						createLine();
+						$(this).val("");
+						$(this).focus();
+					}
+				});
+
+			})
+
+			function initialize(){
+				geocoder = new google.maps.Geocoder();
+				var latlng = new google.maps.LatLng(7.5653, 80.4303);
+				var mapOptions = {
+					zoom: 4,
+					center: latlng,
+					mapTypeId: google.maps.MapTypeId.ROADMAP
+				}
+				map = new google.maps.Map(document.getElementById("map"), mapOptions);
+
+				setZoom();
+
+				var input = /** @type {HTMLInputElement} */(
+				document.getElementById('startvalue'));
+
+				var searchBox = new google.maps.places.SearchBox(
+				/** @type {HTMLInputElement} */(input));
+
+			}
+
+			var address;
+			var address2;
+			function createLine(){
+
+				if (address){
+					address2 = document.getElementById('startvalue').value;     
+				} else {
+					address = document.getElementById('startvalue').value;     
+				}
+
+				var temp, temp2;
+
+				geocoder.geocode({ 'address': address }, function (results, status) {
+					// if (status != "OK") alert("geocode of address:"+address+" failed, status="+status);
+					temp = results[0].geometry.location;
+					if (address2){
+						geocoder.geocode({ 'address': address2 }, function (results, status) {
+							// if (status != "OK") alert("geocode of address:"+address+" failed, status="+status);
+							temp2 = results[0].geometry.location;
+							document.getElementById('results').innerHTML += temp2.toUrlValue()+"<br>";
+
+							var route = [
+								temp,
+								temp2
+							];
+
+							var polyline = new google.maps.Polyline({
+								path: route,
+								strokeColor: "#FF5E56",
+								strokeOpacity: 0.6,
+								strokeWeight: 5
+							});
+							location1 = convertLocationToLatLong(temp.toUrlValue())
+							location2 = convertLocationToLatLong(temp2.toUrlValue())
+
+
+
+							var lengthInMeters = google.maps.geometry.spherical.computeLength(polyline.getPath());
+							document.getElementById('results').innerHTML += "Polyline is "+lengthInMeters+" meters long<br>";
+
+							polyline.setMap(map);
+							plotMap(location1,location2);
+						});   
+						address = address2;          
+					} else {
+						location1 = convertLocationToLatLong(temp.toUrlValue());
+						plotMap(location1);
+					}
+				});
+			}
+
+			function convertLocationToLatLong(location){
+				var location = location.split(',').map(function(item) {
+					return parseFloat(item);
+				});
+				return location
+			}
+
+			function plotMap(location1,location2){
+				var location1 = new google.maps.LatLng(location1[0],location1[1]);
+				if (location2){
+					var location2 = new google.maps.LatLng(location2[0],location2[1]);      
+				}
+				var bounds = new google.maps.LatLngBounds();
+				bounds.extend(location1);
+				if(location2){
+					bounds.extend(location2);    
+				}
+				map.fitBounds(bounds);       
+				setZoom();
+			}
+
+			function setZoom(){
+				google.maps.event.addListener(map, 'zoom_changed', function() {
+				zoomChangeBoundsListener = 
+					google.maps.event.addListener(map, 'bounds_changed', function(event) {
+						if (this.getZoom() > 15 && this.initialZoom == true) {
+							// Change max/min zoom here
+							this.setZoom(15);
+							this.initialZoom = false;
+						}
+						google.maps.event.removeListener(zoomChangeBoundsListener);
+					});
+				});
+				map.initialZoom = true;
+			}
+		</script>
+		<style>
+			#map {
+				margin: 0;
+				padding: 0;
+				height: 400px;
+				margin-top:30px;
+				width:100%;
+			}
+
+			#inputDiv{
+				position:absolute;
+				top:0;
+			}
+
+			#startvalue{
+			  width:300px;
+			  padding:8px;
+			}
+		</style>
+	</head>	
+	<body>
+		<div id="inputDiv">
+			<input id="startvalue" type="text" width="90" value="" autofocus placeholder="Keep Adding Places and searching...">
+		</div>
+		<div id="map"></div>
+		<div id="results"></div>
+	</body>
+</html>
+
+
+
+

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Simple Polylines</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+
+      var wsUri = "ws://echo.websocket.org/";
+	  var busCoordinates = [];
+	      function init()
+		  {
+			//output = document.getElementById("output");
+			runWebSocket();
+		  }
+
+		  function runWebSocket()
+		  {
+			websocket = new WebSocket(wsUri);
+			websocket.onopen = function(evt) { onOpen(evt) };
+			websocket.onclose = function(evt) { onClose(evt) };
+			websocket.onmessage = function(evt) { onMessage(evt) };
+			websocket.onerror = function(evt) { onError(evt) };
+		  }
+
+		  function onOpen(evt)
+		  {
+			
+		  }
+
+		  function onClose(evt)
+		  {
+			
+		  }
+
+		  function onMessage(evt)
+		  {
+			var data = JSON.parse(evt.data);
+			busCoordinates.push(data);
+			var busPath = new google.maps.Polyline({
+			  path: busCoordinates,
+			  geodesic: true,
+			  strokeColor: '#0000FF',
+			  strokeOpacity: 0,
+			  strokeWeight: 2
+			});
+
+			busPath.setMap(map);
+		  }
+
+		  function onError(evt)
+		  {
+			
+		  }
+
+		  function doSend(message)
+		  {
+			
+		  }
+
+		  function writeToScreen(message)
+		  {
+			
+		  }
+
+		  window.addEventListener("load", init, false);
+
+		  function initMap() {
+			var map = new google.maps.Map(document.getElementById('map'), {
+			  zoom: 15,
+			  //center: {lat: 0, lng: -180},
+			  center: {lat: 22.5726, lng: 88.3639},
+			  mapTypeId: google.maps.MapTypeId.ROADMAP,
+			  style: google.maps.NavigationControlStyle.SMALL
+			});              
+		  }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_KA4aJDH94d9x1oK3NvIwB3S4T1AUjcY&callback=initMap">
+    </script>
+  </body>
+</html>
