@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <title>Simple Polylines</title>
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+
+      var service = new google.maps.DirectionsService();
+	  var map;
+	  //var wsUri = "ws://localhost:8001/";
+	  var wsUri = "ws://echo.websocket.org/";
+	  var busCoordinates = [
+	  {lat: 22.572612, lng: 88.363912},
+	  {lat: 22.573654, lng: 88.364954},
+	  {lat: 22.574689, lng: 88.365989}	  
+	  ];
+	      function init()
+		  {
+			//output = document.getElementById("output");
+			runWebSocket();
+		  }
+
+		  function runWebSocket()
+		  {
+			var websocket = new WebSocket(wsUri);
+			websocket.onopen = function(evt) { onOpen(evt) };
+			websocket.onclose = function(evt) { onClose(evt) };
+			websocket.onmessage = function(evt) { onMessage(evt) };
+			websocket.onerror = function(evt) { onError(evt) };
+		  }
+
+		  function onOpen(evt)
+		  {
+			 console.log("Connected to websocket");
+			 //var data = JSON.parse(evt.data);
+			 //busCoordinates.push(data);			 
+			 //var marker1 = new google.maps.Marker({position: {lat: 22.5726, lng: 88.3639}, map: map});
+			 
+			  var busPath = new google.maps.Polyline({
+				  //path: busCoordinates,
+				  geodesic: true,
+				  strokeColor: '#0000FF',
+				  strokeOpacity: 0.0,
+				  strokeWeight: 2,
+				  map: map
+				  icon: 
+				});
+			 
+		  }
+
+		  function onClose(evt)
+		  {
+			
+		  }
+
+		  function onMessage(evt)
+		  {
+			var data = JSON.parse(evt.data);
+			path.push({lat:data.latitude,lng:data.longitude});
+			var busPath = new google.maps.Polyline({
+			  path: busCoordinates,
+			  geodesic: true,
+			  strokeColor: '#0000FF',
+			  strokeOpacity: 2.0,
+			  strokeWeight: 2,
+			  map: map
+			});				
+
+			var flightPlanCoordinates = [
+				{lat: 37.772, lng: -122.214},
+				{lat: 21.291, lng: -157.821},
+				{lat: -18.142, lng: 178.431},
+				//{lat: -27.467, lng: 153.027}
+				{lat: 22.5726, lng: 88.3639}
+			  ];
+			  var flightPath = new google.maps.Polyline({
+				path: flightPlanCoordinates,
+				geodesic: true,
+				strokeColor: '#FF0000',
+				strokeOpacity: 0.0,
+				strokeWeight: 2,
+				map: map
+			  });
+		  }
+
+		  function onError(evt)
+		  {
+			
+		  }
+
+		  function doSend(message)
+		  {
+			
+		  }
+
+		  function writeToScreen(message)
+		  {
+			
+		  }
+
+		  window.addEventListener("load", init, false);
+
+		  function initMap() {
+			map = new google.maps.Map(document.getElementById('map'), {
+			  zoom: 18,
+			  //center: {lat: 0, lng: -180},
+			  center: {lat: 22.5726, lng: 88.3639},
+			  mapTypeId: google.maps.MapTypeId.ROADMAP,
+			  style: google.maps.NavigationControlStyle.SMALL
+			});    
+		  }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD_KA4aJDH94d9x1oK3NvIwB3S4T1AUjcY&callback=initMap">
+    </script>
+  </body>
+</html>
